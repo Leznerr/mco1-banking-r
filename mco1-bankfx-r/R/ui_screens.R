@@ -169,7 +169,7 @@ screen_withdraw <- function(state) {
 # Output : ASCII table "Day | Interest | Balance" with 2-decimal formatting
 # ────────────────────────────────────────────────────────────────────────────
 screen_show_interest <- function(state) {
-  cat("\nShow Interest Amount\n")                                            # Section header per spec.
+  cat("\nShow Interest Computation\n")                                       # Section header per spec.
   cat("Account Name: ", .account_label(state), "\n", sep = "")               # Provide context consistent with PDF output.
   cat("Current Balance: ", money(get_balance_php(state)), "\n", sep = "")     # Show current balance before simulation.
   cat("Currency: PHP\n")                                                     # Balance is always maintained in PHP.
