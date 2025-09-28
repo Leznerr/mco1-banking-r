@@ -31,7 +31,8 @@ source("R/interest.R")                                                       # d
 .coerce_currency_selection <- function(input) {                                # Accept bracketed numbers or codes.
   raw <- trimws(input)                                                         # Remove stray whitespace around the input.
   raw <- gsub("[\t\r\n]", "", raw, perl = TRUE)                            # Strip control characters defensively.
-  raw <- gsub("[\[\]]", "", raw, perl = TRUE)                              # Allow entries like "[2]" from the spec transcript.
+  raw <- gsub("[", "", raw, fixed = TRUE)                                   # Allow entries like "[2]" from the spec transcript.
+  raw <- gsub("]", "", raw, fixed = TRUE)                                   # Remove closing bracket separately.
   if (!nzchar(raw)) stop("Currency selection cannot be blank.", call. = FALSE)
 
   # Try numeric index first (per spec prompt using option numbers).
