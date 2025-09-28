@@ -32,14 +32,34 @@ print_main_menu <- function() {                                                 
 }
 
 read_choice <- function() {                                                     # Reads one line from stdin for the menu pick.
-  cat("Select option: ")                                                        # Prompt text must match the spec.
-  trimws(readLines(stdin(), n = 1))                                             # Return trimmed string (e.g., "1", "2", "0").
+  if (interactive()) {                                                          # Prefer readline() when a console is available.
+    ans <- readline(prompt = "Select option: ")                                 # Keeps cursor in place on Windows Rterm.
+  } else {                                                                      # Batch mode (e.g., Rscript): fall back to readLines
+    cat("Select option: ")                                                      # Prompt text must match the spec.
+    flush.console()                                                             # Ensure prompt is flushed before waiting for input.
+    ans <- tryCatch(                                                            # Guard against EOF/connection issues.
+      readLines(stdin(), n = 1, warn = FALSE),
+      error = function(e) character(0)
+    )
+    if (length(ans) == 0) return(NA_character_)                                 # Signal lack of input upstream.
+  }
+  trimws(ans)                                                                   # Return trimmed string (e.g., "1", "2", "0").
 }
 
 ask_back_to_main_menu <- function() {                                           # Asks whether to loop back to the menu.
-  cat("\nBack to the Main Menu (Y/N): ")                                        # Exact wording per spec (note "the").
-  ans <- toupper(trimws(readLines(stdin(), n = 1)))                              # Normalize to uppercase.
-  ans == "Y"                                                                     # TRUE to loop, FALSE to exit.
+  if (interactive()) {                                                          # Use readline() to avoid prompt overwrite.
+    ans <- readline(prompt = "\nBack to the Main Menu (Y/N): ")                 # Exact wording per spec (note "the").
+    return(toupper(trimws(ans)) == "Y")                                         # TRUE to loop, FALSE to exit.
+  }
+
+  cat("\nBack to the Main Menu (Y/N): ")                                        # Batch mode prompt.
+  flush.console()                                                               # Flush for non-interactive environments.
+  ans <- tryCatch(                                                              # Attempt to read one line if available.
+    readLines(stdin(), n = 1, warn = FALSE),
+    error = function(e) character(0)
+  )
+  if (length(ans) == 0) return(FALSE)                                           # No input → treat as "No" to exit gracefully.
+  toupper(trimws(ans)) == "Y"                                                   # Normalize to uppercase.
 }
 
 safe_call <- function(screen_fn, state) {                                       # Wrapper: run a screen and trap errors.
@@ -61,6 +81,10 @@ main_menu <- function() {                                                       
   repeat {                                                                      # Event loop until the user chooses to exit.
     print_main_menu()                                                           # Show the menu.
     choice <- read_choice()                                                     # Read the user's selection as a string.
+    if (is.na(choice)) {                                                        # Handle non-interactive execution without input.
+      cat("\n(No interactive input available. Run via Rterm.exe or inside R/RStudio.)\n")
+      break                                                                     # Exit loop gracefully.
+    }
 
     if (choice == "0") {                                                        # Spec: '0' means Exit immediately.
       cat("Goodbye!\n")                                                         # Friendly goodbye message.
