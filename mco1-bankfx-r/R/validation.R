@@ -8,8 +8,8 @@
 # Helpers (tiny, pure functions used by the asserts)
 # ────────────────────────────────────────────────────────────────────
 .allowed_codes <- function() {                        # Get the canonical list of currency codes
-    if (exists("CURRENCY_CODES", inherits = TRUE))    # …prefer the constant from state.R if it's already loaded, 
-        get("CURRENT_CODES", inherits = TRUE)         # …so we never duplicate source of truth.
+    if (exists("CURRENCY_CODES", inherits = TRUE))    # …prefer the constant from state.R if it's already loaded,
+        get("CURRENCY_CODES", inherits = TRUE)        # …so we never duplicate source of truth.
     else                                              # Fallback in case validation.R is sourced before state.R:
         c("PHP", "USD", "JPY", "GBP", "EUR", "CNY")   # …still lets this file work independently in tests.
 }
@@ -71,5 +71,12 @@ assert_name <- function(name) {                                        # Validat
   invisible(TRUE)                                                      # OK.
 }
 
+
+
+ensure_currency <- function(code) {                                    # Normalize + validate currency code in one helper.
+  clean <- .sanitize_currency(code)                                    # Trim/uppercase for canonical form.
+  assert_currency(clean)                                               # Reuse guard to enforce allowed set.
+  clean                                                                # Return sanitized code for callers.
+}
 
 

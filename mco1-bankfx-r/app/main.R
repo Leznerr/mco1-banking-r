@@ -20,19 +20,15 @@ source("R/ui_screens.R")                                                        
 # ──────────────────────────────────────────────────────────────────────────────
 
 print_main_menu <- function() {                                                 # Prints the menu exactly as the spec shows.
-  cat("\n==============================\n")                                      # Visual separator (nice for screenshots).
-  cat("Main Menu\n")                                                            # Title line.
-  cat("==============================\n")                                         # Closing banner.
-  cat(                                                                          # Exact options (labels must match the spec).
-    "[1] Register Account Name\n",
-    "[2] Deposit Amount\n",
-    "[3] Withdraw Amount\n",
-    "[4] Currency Exchange\n",
-    "[5] Record Exchange Rates\n",
-    "[6] Show Interest Amount\n",
-    "[0] Exit\n",
-    sep = ""
-  )
+  cat("\nMain Menu\n")                                                        # Title line.
+  cat("Select Transaction:\n")                                                 # Subtitle per PDF output.
+  cat("[1] Register Account Name\n")
+  cat("[2] Deposit Amount\n")
+  cat("[3] Withdraw Amount\n")
+  cat("[4] Currency Exchange\n")
+  cat("[5] Record Exchange Rates\n")
+  cat("[6] Show Interest Computation\n")
+  cat("[0] Exit\n")
 }
 
 read_choice <- function() {                                                     # Reads one line from stdin for the menu pick.
@@ -41,7 +37,7 @@ read_choice <- function() {                                                     
 }
 
 ask_back_to_main_menu <- function() {                                           # Asks whether to loop back to the menu.
-  cat("\nBack to Main Menu (Y/N): ")                                            # Exact wording per spec.
+  cat("\nBack to the Main Menu (Y/N): ")                                        # Exact wording per spec (note "the").
   ans <- toupper(trimws(readLines(stdin(), n = 1)))                              # Normalize to uppercase.
   ans == "Y"                                                                     # TRUE to loop, FALSE to exit.
 }
