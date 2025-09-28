@@ -135,4 +135,4 @@ expect_error(deposit(s3,  1, "EUR"))                      # EUR deposit must als
 # ─────────────────────────────────────────────────────────────────────────────
 # Done
 # ─────────────────────────────────────────────────────────────────────────────
-cat("account tests passed\n")                           # Success banner when all assertions hold
+cat("✅ account tests passed\n")                        # Success banner when all assertions hold
