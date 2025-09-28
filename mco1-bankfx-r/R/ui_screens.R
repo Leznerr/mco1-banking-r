@@ -55,20 +55,21 @@ source("R/interest.R")                                                       # d
 
 .read_line <- function(prompt) {                                             # Read a single line of raw text from stdin.
   if (interactive()) {                                                       # readline() keeps cursor position in consoles.
-    return(readline(prompt = prompt))
+    ln <- readline(prompt = prompt)
+    if (length(ln) == 0) return("")                                         # readline() may propagate EOF as length-0.
+    return(ln)
   }
 
   cat(prompt)                                                                # Show the prompt without newline suppression.
   flush.console()                                                            # Ensure prompt appears before waiting.
-  ln <- tryCatch(                                                            # Safely attempt to read one line.
-    readLines(stdin(), 1, warn = FALSE),
-    error = function(e) character(0)
-  )
+  ln <- readLines(stdin(), n = 1, warn = FALSE)                              # Batch-friendly line reader.
   if (length(ln) == 0) "" else ln                                            # Gracefully handle EOF in batch mode.
 }
 
 .read_number <- function(prompt) {                                           # Read a numeric (double) from stdin with parse check.
   txt <- .read_line(prompt)                                                  # Get raw text from user.
+  if (!length(txt) || identical(txt, ""))                                   # Detect EOF / no data conditions.
+    stop("No input received (EOF).", call. = FALSE)
   val <- suppressWarnings(as.numeric(txt))                                   # Attempt to parse as numeric; suppress NA warnings.
   if (is.na(val)) stop("Please enter a valid number.", call. = FALSE)        # Fail fast if not a number (let main tryCatch handle).
   val                                                                         # Return the parsed double.
@@ -76,6 +77,8 @@ source("R/interest.R")                                                       # d
 
 .read_integer <- function(prompt) {                                          # Read an integer from stdin with a strict check.
   txt <- .read_line(prompt)                                                  # Get raw text from user.
+  if (!length(txt) || identical(txt, ""))                                   # Detect EOF / no data conditions.
+    stop("No input received (EOF).", call. = FALSE)
   val <- suppressWarnings(as.integer(txt))                                   # Attempt integer coercion (drops decimals).
   if (is.na(val) || as.character(val) != trimws(txt))                        # Reject non-integers like "2.5" or non-digits.
     stop("Please enter a valid integer.", call. = FALSE)                     # Clear, actionable error message.
