@@ -17,7 +17,20 @@ atomic_write <- function(write_fn, path) {  # Internal helper to guarantee atomi
   ensure_outdir(dir)  # Ensure directory exists before writing
   tmp <- tempfile(pattern = basename(path), tmpdir = dir)  # Create temp file in same directory
   write_fn(tmp)  # Execute provided writer into temporary file
-  file.rename(tmp, path)  # Move temp file into final location atomically
+
+  if (file.exists(path)) {  # Remove any existing destination file to avoid rename conflicts
+    if (!file.remove(path)) {  # Abort when the pre-existing file cannot be deleted
+      file.remove(tmp)  # Best-effort cleanup of temporary file
+      stop(sprintf("Failed to remove existing file at '%s' before atomic write.", path))
+    }
+  }
+
+  if (!file.rename(tmp, path)) {  # Move temp file into final location atomically
+    file.remove(tmp)  # Best-effort cleanup of temporary file on failure
+    stop(sprintf("Failed to move temporary file '%s' to destination '%s'.", tmp, path))
+  }
+
+  invisible(path)  # Return invisibly for callers that expect the destination path
 }
 
 write_report_csv <- function(df, path, exclude = NULL, exclude_regex = NULL) {  # Persist a formatted report to CSV
