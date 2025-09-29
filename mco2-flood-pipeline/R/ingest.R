@@ -40,8 +40,7 @@ ingest_csv <- function(path) {  # Main ingestion function returning tibble
     locale = locale,  # Locale configuration
     guess_max = 10000,  # Expand guessing horizon for diverse columns
     na = c("", "NA", "N/A", "null", "NULL"),  # Accepted NA tokens
-    show_col_types = FALSE,  # Suppress column type printing
-    name_repair = "minimal"  # Preserve original header names (even duplicates)
+    show_col_types = FALSE  # Suppress column type printing
   )
   if (nrow(df) == 0) {  # Ensure dataset contains rows
     stop("Input file has no data rows")  # Abort on empty dataset
