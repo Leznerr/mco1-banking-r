@@ -1,0 +1,13 @@
+Region,MainIsland,Province,FundingYear,TypeOfWork,StartDate,ActualCompletionDate,ApprovedBudgetForContract,ContractCost,Contractor,Latitude,Longitude
+region vii,visayas,cebu,2021,Dredging ,2021-01-15,2021-04-20,"Php 10,500,000","Php 9,800,000",Alpha builders,10.3157,123.8854
+Region   vii,Visayas, Cebu ,2021,Dredging ,02/10/2021,05/30/2021,"Php 8,200,000","Php 8,500,000",Alpha builders,,
+Region VII,Visayas,Cebu,2022,Floodwall,2022/03/05,2022/07/30,"Php 12,000,000","Php 11,500,000",Alpha builders,10.32,123.9
+Region VII,Visayas,Cebu,2023,Floodwall,5-15-2023,9-20-2023,"Php 9,750,000","Php 9,000,000",Alpha builders,10.31,123.88
+Region VII,Visayas,Cebu,2023,Floodwall,2023-01-10,2023-03-01,"Php 7,600,000","Php 7,100,000",Alpha builders,10.3,123.87
+Region V,Luzon,Albay,2021,Slope Protection,2021-02-01,2021-12-15,"Php 15,000,000","Php 14,700,000",Delta works,13.1438,123.7353
+Region V,Luzon,Albay,2022,Slope Protection,2022-02-10,2022-09-18,"Php 16,500,000","Php 16,900,000",Delta works,,
+Region V,Luzon,Albay,2023,Channel Improvement,2023-03-01,2023-11-05,"Php 18,200,000","Php 17,800,000",Delta works,13.15,123.74
+Region V,Luzon,Albay,2022,Channel Improvement,2022-06-12,2023-01-15,"Php 12,400,000","Php 12,000,000",Delta works,13.16,123.75
+Region V,Luzon,Albay,2021,Channel Improvement,2021-05-20,2021-09-05,"Php 11,300,000","Php 10,900,000",Delta works,13.17,123.76
+Region XI,Mindanao,Davao Del Sur,2022,Levee Construction,2022-01-25,2022-05-30,"Php 9,900,000","Php 9,700,000",Beta construction,6.9214,125.0815
+Region XI,Mindanao,Davao Del Sur,2024,Levee Construction,2024-02-01,2024-06-01,"Php 10,100,000","Php 9,950,000",Beta construction,6.93,125.09
