@@ -513,8 +513,16 @@ fmt_text <- function(s, width = 10, align = c("left", "right", "center")) {
 # ────────────────────────────────────────────────────────────────────────────
 
 .read_line <- function(prompt) {                                             # Read a single line of raw text from stdin.
-  ans <- prompted_read(prompt)
-  if (is.na(ans)) "" else ans
+  if (interactive()) {                                                       # readline() keeps cursor position in consoles.
+    ln <- readline(prompt = prompt)
+    if (length(ln) == 0) return("")                                         # readline() may propagate EOF as length-0.
+    return(ln)
+  }
+
+  cat(prompt)                                                                # Show the prompt without newline suppression.
+  flush.console()                                                            # Ensure prompt appears before waiting.
+  ln <- readLines(stdin(), n = 1, warn = FALSE)                              # Batch-friendly line reader.
+  if (length(ln) == 0) "" else ln                                            # Gracefully handle EOF in batch mode.
 }
 
 .read_number <- function(prompt) {                                           # Read a numeric (double) from stdin with parse check.
@@ -680,30 +688,19 @@ print_main_menu <- function() {                                                 
   cat("[0] Exit\n")
 }
 
-prompted_read <- function(prompt) {
-  # Always show the prompt before waiting
-  cat(prompt); flush.console()
-
-  # If the caller wants to force stdin (for piped tests/CI), honor it.
-  force_stdin <- identical(Sys.getenv("RS_USE_STDIN", "0"), "1")
-
-  # Order of sources: on Windows prefer CON (interactive keyboard), else stdin.
-  sources <- if (.Platform$OS.type == "windows" && !force_stdin)
-               c("CON", "stdin")
-             else
-               c("stdin", "CON")
-
-  for (src in sources) {
-    # Some devices may fail to open; try in order
-    con <- try(file(src, open = "r"), silent = TRUE)
-    if (inherits(con, "try-error")) next
-    on.exit(try(close(con), silent = TRUE), add = TRUE)
-    ln <- readLines(con, n = 1, warn = FALSE)
-    if (length(ln) > 0) return(trimws(ln))
+prompted_read <- function(prompt) {                                             # Shared helper for readline + readLines fallback.
+  if (interactive()) {                                                          # Prefer readline() to keep prompts inline.
+    ans <- readline(prompt = prompt)                                            # readline() handles its own flushing.
+  } else {                                                                      # Batch mode (e.g., Rscript): use readLines().
+    cat(prompt)
+    flush.console()
+    ans <- tryCatch(
+      readLines(stdin(), n = 1, warn = FALSE),
+      error = function(e) character(0)
+    )
+    if (length(ans) == 0) return(NA_character_)                                 # No input available → signal caller.
   }
-
-  # If both sources failed or EOF, report NA so callers can decide to exit
-  NA_character_
+  trimws(ans)                                                                   # Return trimmed string (e.g., "1", "2", "0").
 }
 
 read_choice <- function() {                                                     # Reads one line from stdin for the menu pick.
@@ -711,7 +708,7 @@ read_choice <- function() {                                                     
 }
 
 ask_back_to_main_menu <- function() {                                           # Asks whether to loop back to the menu.
-  ans <- prompted_read("\nBack to the Main Menu (Y/N): ")                      # Exact wording per spec prompt.
+  ans <- prompted_read("\nBack to the Main Menu (Y/N): ")                      # Exact wording handled by readline().
   if (is.na(ans)) return(NA)                                                    # Propagate NA when no input is available.
   toupper(ans) == "Y"                                                           # Normalize to uppercase and compare.
 }
