@@ -54,16 +54,8 @@ source("R/interest.R")                                                       # d
 # ────────────────────────────────────────────────────────────────────────────
 
 .read_line <- function(prompt) {                                             # Read a single line of raw text from stdin.
-  if (interactive()) {                                                       # readline() keeps cursor position in consoles.
-    ln <- readline(prompt = prompt)
-    if (length(ln) == 0) return("")                                         # readline() may propagate EOF as length-0.
-    return(ln)
-  }
-
-  cat(prompt)                                                                # Show the prompt without newline suppression.
-  flush.console()                                                            # Ensure prompt appears before waiting.
-  ln <- readLines(stdin(), n = 1, warn = FALSE)                              # Batch-friendly line reader.
-  if (length(ln) == 0) "" else ln                                            # Gracefully handle EOF in batch mode.
+  ans <- prompted_read(prompt)
+  if (is.na(ans)) "" else ans
 }
 
 .read_number <- function(prompt) {                                           # Read a numeric (double) from stdin with parse check.
