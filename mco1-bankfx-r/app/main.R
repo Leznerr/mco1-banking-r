@@ -32,19 +32,30 @@ print_main_menu <- function() {                                                 
   cat("[0] Exit\n")
 }
 
-prompted_read <- function(prompt) {                                             # Shared helper for readline + readLines fallback.
-  if (interactive()) {                                                          # Prefer readline() to keep prompts inline.
-    ans <- readline(prompt = prompt)                                            # readline() handles its own flushing.
-  } else {                                                                      # Batch mode (e.g., Rscript): use readLines().
-    cat(prompt)
-    flush.console()
-    ans <- tryCatch(
-      readLines(stdin(), n = 1, warn = FALSE),
-      error = function(e) character(0)
-    )
-    if (length(ans) == 0) return(NA_character_)                                 # No input available → signal caller.
+prompted_read <- function(prompt) {
+  # Always show the prompt before waiting
+  cat(prompt); flush.console()
+
+  # If the caller wants to force stdin (for piped tests/CI), honor it.
+  force_stdin <- identical(Sys.getenv("RS_USE_STDIN", "0"), "1")
+
+  # Order of sources: on Windows prefer CON (interactive keyboard), else stdin.
+  sources <- if (.Platform$OS.type == "windows" && !force_stdin)
+               c("CON", "stdin")
+             else
+               c("stdin", "CON")
+
+  for (src in sources) {
+    # Some devices may fail to open; try in order
+    con <- try(file(src, open = "r"), silent = TRUE)
+    if (inherits(con, "try-error")) next
+    on.exit(try(close(con), silent = TRUE), add = TRUE)
+    ln <- readLines(con, n = 1, warn = FALSE)
+    if (length(ln) > 0) return(trimws(ln))
   }
-  trimws(ans)                                                                   # Return trimmed string (e.g., "1", "2", "0").
+
+  # If both sources failed or EOF, report NA so callers can decide to exit
+  NA_character_
 }
 
 read_choice <- function() {                                                     # Reads one line from stdin for the menu pick.
@@ -52,7 +63,7 @@ read_choice <- function() {                                                     
 }
 
 ask_back_to_main_menu <- function() {                                           # Asks whether to loop back to the menu.
-  ans <- prompted_read("\nBack to the Main Menu (Y/N): ")                      # Exact wording handled by readline().
+  ans <- prompted_read("\nBack to the Main Menu (Y/N): ")                      # Exact wording per spec prompt.
   if (is.na(ans)) return(NA)                                                    # Propagate NA when no input is available.
   toupper(ans) == "Y"                                                           # Normalize to uppercase and compare.
 }
