@@ -1,3 +1,4 @@
+
 # app/main.R                                                                    # File: entry point / router (UI navigation only).
 # Responsibilities:                                                             # Keep business logic in R/*.R modules.
 # - Print the exact Main Menu per spec.                                         # Consistency matters for screenshots/rubric.
